@@ -13,40 +13,40 @@ Repositório de skills para agentes de IA — Claude Code, Codex, Gemini, OpenCo
 ### Instalar uma skill específica
 
 ```bash
-npx skills add optadevelop/skills-optadevelop --skill elementor-dev
+npx skills add carlaherrera/skills-optadevelop --skill elementor-dev
 ```
 
 ### Instalar no projeto (padrão)
 
 ```bash
-npx skills add optadevelop/skills-optadevelop --skill elementor-dev
+npx skills add carlaherrera/skills-optadevelop --skill elementor-dev
 ```
 
 ### Instalar globalmente
 
 ```bash
-npx skills add optadevelop/skills-optadevelop --skill elementor-dev -g
+npx skills add carlaherrera/skills-optadevelop --skill elementor-dev -g
 ```
 
 ### Instalar para agente específico
 
 ```bash
-npx skills add optadevelop/skills-optadevelop --skill elementor-dev -a claude-code
-npx skills add optadevelop/skills-optadevelop --skill elementor-dev -a codex
-npx skills add optadevelop/skills-optadevelop --skill elementor-dev -a cursor
-npx skills add optadevelop/skills-optadevelop --skill elementor-dev -a opencode
+npx skills add carlaherrera/skills-optadevelop --skill elementor-dev -a claude-code
+npx skills add carlaherrera/skills-optadevelop --skill elementor-dev -a codex
+npx skills add carlaherrera/skills-optadevelop --skill elementor-dev -a cursor
+npx skills add carlaherrera/skills-optadevelop --skill elementor-dev -a opencode
 ```
 
 ### Instalar todas as skills
 
 ```bash
-npx skills add optadevelop/skills-optadevelop --skill '*'
+npx skills add carlaherrera/skills-optadevelop --skill '*'
 ```
 
 ### Listar skills disponíveis
 
 ```bash
-npx skills add optadevelop/skills-optadevelop --list
+npx skills add carlaherrera/skills-optadevelop --list
 ```
 
 ## Estrutura
