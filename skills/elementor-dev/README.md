@@ -16,6 +16,18 @@ npx skills add carlaherrera/skills-optadevelop --skill elementor-dev -a codex
 npx skills add carlaherrera/skills-optadevelop --skill elementor-dev -a cursor
 ```
 
+### Atualizar
+
+```bash
+# Atualiza no projeto (sobrescreve arquivos existentes)
+npx skills add carlaherrera/skills-optadevelop --skill elementor-dev
+
+# Atualiza instalação global
+npx skills add carlaherrera/skills-optadevelop --skill elementor-dev -g
+```
+
+> Se você fez modificações locais na skill, faça backup antes de atualizar.
+
 ### Manual
 
 Copie a pasta `elementor-dev/` para o diretório de skills do seu agente:
