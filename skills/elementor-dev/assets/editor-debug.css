@@ -1,0 +1,12 @@
+.elementor-widget {
+    outline: 2px dashed #92003b;
+    outline-offset: 2px;
+}
+
+.elementor-editor-active .elementor-widget.elementor-element-editable {
+    outline: 2px dashed #92003b;
+}
+
+.elementor-widget:hover > .elementor-element-overlay {
+    background-color: rgba(146, 0, 59, 0.1);
+}
