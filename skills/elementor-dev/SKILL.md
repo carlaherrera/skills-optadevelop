@@ -1,19 +1,27 @@
 ---
 name: elementor-dev
-description: Especialista em desenvolvimento para o ecossistema Elementor — widgets, addons, controles customizados, dynamic tags, form actions, form fields, theme conditions, finder e context menu. Funciona com Claude, GPT, Gemini, Codex, OpenCode e Antigravity.
+description: Especialista em desenvolvimento para o ecossistema Elementor — widgets, addons, controles customizados, dynamic tags, form actions, form fields, theme conditions, finder, context menu, Custom Post Types (CPTs), taxonomias, tabelas customizadas, widgets de query, skins, integração CPT com Theme Builder. Funciona com Claude, GPT, Gemini, Codex, OpenCode e Antigravity.
 metadata:
   author: elementor-dev
-  version: 1.0.0
+  version: 2.0.0
 license: MIT
 ---
 
 # Elementor Developer (Ecossistema Completo)
 
-Especialista em desenvolvimento para o ecossistema Elementor — widgets, addons, controles customizados, dynamic tags, form actions, form fields, theme conditions, theme locations, finder e context menu.
+Especialista em desenvolvimento para o ecossistema Elementor — widgets, addons, controles customizados, dynamic tags, form actions, form fields, theme conditions, theme locations, finder, context menu, Custom Post Types (CPTs), taxonomias, tabelas customizadas, widgets de query com skins, e integração completa de CPTs com Theme Builder.
 
 ## Quando Usar Esta Skill
 
 Use esta skill quando o usuário precisar de ajuda com:
+- Criar Custom Post Types (CPTs) e taxonomias com suporte a Elementor
+- Criar widgets de query que listam CPTs (grid, lista, masonry)
+- Criar skins customizadas para widgets de query
+- Integrar CPTs com Theme Builder (conditions, locations, templates)
+- Criar meta boxes e admin pages para CPTs
+- Criar tabelas customizadas para CPTs
+- Criar Dynamic Tags para dados de CPTs (post meta, taxonomias, ACF)
+- Criar controles customizados para seleção de CPTs, taxonomias e posts
 - Criar widgets Elementor (simples ou avançados)
 - Criar addons/plugins que estendem o Elementor
 - Criar controles customizados para o editor
@@ -54,6 +62,10 @@ Use esta skill quando o usuário precisar de ajuda com:
 | `\ElementorPro\Modules\ThemeBuilder\Classes\Conditions_Manager` | Gerenciador de condições |
 | `\Elementor\Core\Common\Modules\Finder\Base_Category` | Classe base para finder categories |
 | `\Elementor\Core\Common\Modules\Finder\Categories_Manager` | Gerenciador do finder |
+| `\Elementor\Skin_Base` | Classe base para skins de widgets |
+| `\Elementor\Group_Control_Query` | Group control para queries (post type, taxonomia, ordenação) |
+| `\Elementor\Group_Control_Image_Size` | Group control para tamanhos de imagem |
+| `\Elementor\Controls_Manager::SELECT2` | Select com busca (suporta multiple para CPTs) |
 
 ### Hooks Principais (PHP)
 
@@ -69,6 +81,16 @@ Use esta skill quando o usuário precisar de ajuda com:
 | `elementor/theme/register_locations` | `\Elementor\Theme_Manager` | Registrar theme locations |
 | `elementor/finder/register` | `\Elementor\Core\Common\Modules\Finder\Categories_Manager` | Registrar finder categories |
 | `elementor/elements/categories_registered` | `\Elementor\Elements_Manager` | Registrar categorias de widgets |
+
+**Custom Post Types e Taxonomias:**
+| Hook | Parâmetro | Propósito |
+|------|-----------|-----------|
+| `init` | — | Registrar CPTs (`register_post_type`) e taxonomias (`register_taxonomy`) |
+| `registered_post_type` | `$post_type`, `$args` | Após CPT registrado; adicionar suporte a Elementor |
+| `elementor/query/{$query_id}` | `\WP_Query $query` | Modificar query do widget Posts para CPTs |
+| `manage_{$post_type}_posts_columns` | `$columns` | Customizar colunas na listagem admin do CPT |
+| `manage_{$post_type}_posts_custom_column` | `$column`, `$post_id` | Conteúdo de colunas customizadas |
+| `before_delete_post` | `$post_id` | Limpar meta/dados ao deletar CPT |
 
 **Ciclo de Vida:**
 | Hook | Propósito |
@@ -474,6 +496,12 @@ Consulte os arquivos na pasta `/references/` para informações completas:
 - `references/addon-architecture.md` — Arquitetura de addons
 - `references/components-reference.md` — Dynamic tags, form actions, fields, theme conditions, finder, context menu
 - `references/scripts-styles.md` — Sistema de scripts e estilos
+- `references/cpt-taxonomy.md` — CPTs e taxonomias com Elementor (registro, suporte, permissões, status customizados)
+- `references/query-widgets.md` — Widgets de query, skins, Group_Control_Query, paginação, caching
+- `references/custom-tables.md` — Tabelas customizadas, CRUD helper, meta boxes, admin pages, custom columns
+- `references/cpt-theme-builder.md` — Theme Builder conditions para CPTs, locations, widgets de info, breadcrumbs
+- `references/cpt-dynamic-tags.md` — Dynamic tags para post meta, taxonomias, ACF, dados de tabelas customizadas
+- `references/cpt-controls.md` — Controles customizados para CPT (post type select, taxonomy select, post select, term select hierárquico)
 
 ## Templates Prontos
 
@@ -487,6 +515,10 @@ Consulte os arquivos na pasta `/templates/` para código boilerplate completo:
 - `templates/form-field.php` — Form field
 - `templates/theme-condition.php` — Theme condition
 - `templates/finder-category.php` — Finder category
+- `templates/cpt-registration.php` — Registro completo de CPT com taxonomias
+- `templates/cpt-query-widget.php` — Widget de query com skins (grid/lista)
+- `templates/cpt-skin.php` — Skins customizadas para widgets de query
+- `templates/cpt-admin-page.php` — Meta boxes, admin pages e custom columns para CPTs
 
 ## Categorias de Widgets Padrão
 
@@ -503,6 +535,146 @@ Consulte os arquivos na pasta `/templates/` para código boilerplate completo:
 
 Use classes CSS `eicon-*` para ícones do Elementor (ex: `eicon-code`, `eicon-cart-medium`, `eicon-edit`).
 FontAwesome também é suportado (ex: `fa fa-star`).
+
+## Custom Post Types (CPTs) com Elementor
+
+### Registro Básico
+
+```php
+register_post_type( 'portfolio', [
+    'labels'    => [ /* labels */ ],
+    'public'        => true,
+    'has_archive'   => true,
+    'show_in_rest'  => true,
+    'rewrite'       => [ 'slug' => 'portfolio', 'with_front' => false ],
+    'menu_icon'     => 'dashicons-portfolio',
+    'supports'      => [ 'title', 'editor', 'thumbnail', 'excerpt', 'custom-fields', 'elementor' ],
+] );
+```
+
+**Suporte a Elementor é obrigatório:** adicione `'elementor'` nos supports.
+
+### Taxonomias
+
+```php
+// Hierárquica (tipo categoria)
+register_taxonomy( 'portfolio_category', 'portfolio', [
+    'public' => true, 'hierarchical' => true, 'show_in_rest' => true, 'show_admin_column' => true,
+] );
+
+// Não-hierárquica (tipo tag)
+register_taxonomy( 'portfolio_tag', 'portfolio', [
+    'public' => true, 'hierarchical' => false, 'show_in_rest' => true, 'show_admin_column' => true,
+] );
+```
+
+### Widgets de Query com Skins
+
+```php
+// Widget com Group_Control_Query
+$this->add_group_control( \Elementor\Group_Control_Query::get_type(), [
+    'name'        => 'posts_query',
+    'post_type'   => [ 'portfolio' ],
+    'fields_options' => [ 'posts_per_page' => [ 'default' => 6 ] ],
+] );
+
+// Executar query
+$query_args = \Elementor\Group_Control_Query::get_query_args( 'posts_query', $settings );
+$query = new \WP_Query( $query_args );
+// ... render loop ...
+wp_reset_postdata();
+```
+
+### Skins para Widgets de Query
+
+```php
+class Grid_Skin extends \Elementor\Skin_Base {
+    public function get_id(): string { return 'grid'; }
+    public function get_title(): string { return esc_html__( 'Grid', 'textdomain' ); }
+    public function render(): void { /* render grid layout */ }
+}
+
+// No widget __construct():
+$this->add_skin( new Grid_Skin( $this ) );
+$this->add_skin( new List_Skin( $this ) );
+```
+
+### Modificar Query do Widget Posts (CPT)
+
+```php
+add_action( 'elementor/query/minha_query', function( \WP_Query $query ) {
+    $query->set( 'post_type', [ 'portfolio', 'depoimento' ] );
+    $query->set( 'meta_key', 'portfolio_destaque' );
+    $query->set( 'orderby', 'meta_value' );
+    $query->set( 'meta_query', [ [
+        'key' => 'portfolio_status', 'value' => 'ativo', 'compare' => '=',
+    ] ] );
+} );
+```
+
+### Theme Conditions para CPTs
+
+```php
+// Singular
+add_action( 'elementor/theme/register_conditions', function( $cm ) {
+    $cm->get_condition( 'singular' )->register_sub_condition( new Portfolio_Condition() );
+    $cm->get_condition( 'archive' )->register_sub_condition( new Portfolio_Archive_Condition() );
+} );
+
+// Condition class
+class Portfolio_Condition extends \ElementorPro\Modules\ThemeBuilder\Conditions\Condition_Base {
+    public function get_name(): string { return 'portfolio_singular'; }
+    public function get_label(): string { return esc_html__( 'Item do Portfólio', 'textdomain' ); }
+    public function get_type(): string { return 'singular'; }
+    public function check( $args ): bool { return is_singular( 'portfolio' ); }
+}
+```
+
+### Dynamic Tags para CPTs
+
+```php
+// Post meta tag
+class Post_Meta_Tag extends \Elementor\Core\DynamicTags\Tag {
+    public function get_name(): string { return 'cpt_post_meta'; }
+    public function get_title(): string { return esc_html__( 'CPT Post Meta', 'textdomain' ); }
+    public function get_group(): array { return [ 'cpt-fields' ]; }
+    public function get_categories(): array { return [ Module::TEXT_CATEGORY, Module::URL_CATEGORY ]; }
+    protected function render(): void {
+        $meta_key = $this->get_settings( 'meta_key' );
+        echo esc_html( get_post_meta( get_the_ID(), $meta_key, true ) );
+    }
+}
+```
+
+### Controles para CPTs (SELECT2 nativo)
+
+```php
+// Seleção de Post Types
+$this->add_control( 'post_type', [
+    'type'    => \Elementor\Controls_Manager::SELECT2,
+    'multiple'=> true,
+    'options' => $this->get_post_type_options(),
+] );
+
+// Seleção de Taxonomias
+$this->add_control( 'taxonomy', [
+    'type'    => \Elementor\Controls_Manager::SELECT,
+    'options' => $this->get_taxonomy_options(),
+] );
+```
+
+### Regras para CPTs
+
+1. **SEMPRE** adicione `'elementor'` nos supports do CPT
+2. **SEMPRE** use `has_archive: true` para Theme Builder conditions
+3. **SEMPRE** use `show_in_rest: true` para REST API
+4. **NUNCA** use `flush_rewrite_rules()` no hook `init` — apenas na ativação
+5. **SEMPRE** use prefixo no slug do CPT: `meuaddon_portfolio`
+6. **SEMPRE** chame `wp_reset_postdata()` após `WP_Query` em widgets
+7. **SEMPRE** sanitize inputs de meta boxes (`sanitize_text_field`, `esc_url_raw`, etc.)
+8. **SEMPRE** verifique `current_user_can( 'edit_post' )` ao salvar meta boxes
+9. **SEMPRE** use `ABSPATH` check no topo de cada arquivo PHP
+10. **NUNCA** use namespace no arquivo principal do plugin
 
 ## Migração de Códigos Deprecados
 
